@@ -24,25 +24,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from '@clerk/nextjs'
 import Link from "next/link";
+import SessionProvider from "@/components/SessionProvider";
+import { getServerSession } from "next-auth";
+import SignIn from "@/components/custom/SignIn";
+import SignOut from "@/components/custom/SignOut";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
+  const sereverSession = await getServerSession();
+
   return (
-    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
-      <html lang="en">
-        <body>
+    <html lang="en">
+      <body>
+        <SessionProvider session={sereverSession}>
           <div className="flex justify-between mr-[50px] h-full">
             <div className="h-full flex flex-col justify-between items-center">
               <div>
@@ -92,15 +92,9 @@ export default function RootLayout({
                     </DialogTrigger>
                     <DialogContent className="bg-[rgb(24,24,24)] text-white">
                       <DialogHeader>
-                        <DialogTitle>Авторизация</DialogTitle>
+                        <DialogTitle>Ещё не зарегистрированы?</DialogTitle>
                         <DialogDescription>
-                          <SignedOut>
-                            <SignInButton />
-                            <SignUpButton />
-                          </SignedOut>
-                          <SignedIn>
-                            <UserButton />
-                          </SignedIn>
+                          <SignIn />
                         </DialogDescription>
                       </DialogHeader>
                     </DialogContent>
@@ -121,7 +115,9 @@ export default function RootLayout({
                       <DropdownMenuItem>Profile</DropdownMenuItem>
                       <DropdownMenuItem>Billing</DropdownMenuItem>
                       <DropdownMenuItem>Team</DropdownMenuItem>
-                      <DropdownMenuItem>Subscription</DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <SignOut />
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -162,8 +158,8 @@ export default function RootLayout({
               </Dialog>
             </div>
           </div>
-        </body>
-      </html>
-    </ClerkProvider>
+        </SessionProvider>
+      </body>
+    </html >
   );
 }
